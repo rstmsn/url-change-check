@@ -5,7 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
-previous_hash_file = 'previous.hash'
+url_file = 'urls.json'
+previous_hash_file = 'previous.json'
 previous_hashes = {}
 current_hashes = {}
 
@@ -27,7 +28,20 @@ def load_previous_hashes():
     except UnicodeDecodeError as e:
         sys.exit('Invalid previous hash file detected. Exiting...')
     except json.decoder.JSONDecodeError as e:
-        sys.exit('Malformed hash file detected. Exiting...')
+        pass
+
+def load_urls():
+    try:
+        with open(url_file) as json_file:
+            urls = json.load(json_file)
+    except FileNotFoundError as e:
+        Path(url_file).touch()
+    except UnicodeDecodeError as e:
+        sys.exit('Invalid URL file detected. Exiting...')
+    except json.decoder.JSONDecodeError as e:
+        sys.exit(f'{bcolors.HEADER}Malformed URL file detected. Add some URLS first...{bcolors.ENDC}')
+    else:
+        return urls
 
 def write_current_hashes():
     with open(previous_hash_file, 'w') as outfile:
@@ -61,17 +75,14 @@ def check_for_changes():
     if not detected_changes:
             print(f'\n{bcolors.HEADER}No changes detected at this time.{bcolors.ENDC}')
 
-def main():
-    load_previous_hashes()
-
-    urls = [
-        "https://www.lopp.net/bitcoin-information/getting-started.html",
-        "https://aantonop.com/books/",
-        "https://www.freebsd.org/news/",
-    ]
- 
-    hash_urls(urls)
-    check_for_changes()
-    write_current_hashes()
+def main(): 
+    urls = load_urls()
+    if urls:
+        load_previous_hashes()
+        hash_urls(urls)
+        check_for_changes()
+        write_current_hashes()
+    else:
+        print(f'{bcolors.WARNING}Add some URLS in urls.json first.{bcolors.ENDC}')
 
 main()
