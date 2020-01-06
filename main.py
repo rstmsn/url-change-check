@@ -7,8 +7,6 @@ from pathlib import Path
 
 url_file = 'urls.json'
 previous_hash_file = 'previous.json'
-previous_hashes = {}
-current_hashes = {}
 
 class bcolors:
     HEADER = '\033[95m'
@@ -19,7 +17,7 @@ class bcolors:
     BOLD = '\033[1m'
 
 def load_previous_hashes():
-    global previous_hashes
+    previous_hashes = {}
     try:
         with open(previous_hash_file) as json_file:
             previous_hashes = json.load(json_file)
@@ -29,6 +27,8 @@ def load_previous_hashes():
         sys.exit('Invalid previous hash file detected. Exiting...')
     except json.decoder.JSONDecodeError as e:
         pass
+    finally:
+        return previous_hashes
 
 def load_urls():
     try:
@@ -43,13 +43,15 @@ def load_urls():
     else:
         return urls
 
-def write_current_hashes():
+def write_current_hashes(current_hashes):
     with open(previous_hash_file, 'w') as outfile:
         json.dump(current_hashes, outfile)
 
 def hash_urls(urls):
+    current_hashes = {}
     for page_url in urls:
         current_hashes[page_url] = hash_page_url(page_url)
+    return current_hashes
 
 def hash_page_url(page_url):
     r = requests.get(page_url)
@@ -59,7 +61,7 @@ def hash_page_url(page_url):
     
     return page_url_hash
 
-def check_for_changes():
+def check_for_changes(current_hashes, previous_hashes):
     detected_changes = False
     for page_url in current_hashes:
         print(f'{bcolors.BOLD}Checking ' + page_url + f'...{bcolors.ENDC}')
@@ -78,10 +80,10 @@ def check_for_changes():
 def main(): 
     urls = load_urls()
     if urls:
-        load_previous_hashes()
-        hash_urls(urls)
-        check_for_changes()
-        write_current_hashes()
+        previous_hashes = load_previous_hashes()
+        current_hashes = hash_urls(urls)
+        check_for_changes(current_hashes, previous_hashes)
+        write_current_hashes(current_hashes)
     else:
         print(f'{bcolors.WARNING}Add some URLS in urls.json first.{bcolors.ENDC}')
 
