@@ -1,4 +1,3 @@
-import os
 import sys
 import requests
 import hashlib
@@ -21,11 +20,11 @@ def load_previous_hashes():
     try:
         with open(previous_hash_file) as json_file:
             previous_hashes = json.load(json_file)
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         Path(previous_hash_file).touch()
-    except UnicodeDecodeError as e:
+    except UnicodeDecodeError:
         sys.exit('Invalid previous hash file detected. Exiting...')
-    except json.decoder.JSONDecodeError as e:
+    except json.decoder.JSONDecodeError:
         pass
     finally:
         return previous_hashes
@@ -34,11 +33,11 @@ def load_urls():
     try:
         with open(url_file) as json_file:
             urls = json.load(json_file)
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         Path(url_file).touch()
-    except UnicodeDecodeError as e:
+    except UnicodeDecodeError:
         sys.exit('Invalid URL file detected. Exiting...')
-    except json.decoder.JSONDecodeError as e:
+    except json.decoder.JSONDecodeError:
         sys.exit(f'{bcolors.HEADER}Malformed URL file detected. Add some URLS first...{bcolors.ENDC}')
     else:
         return urls
