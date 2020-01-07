@@ -15,20 +15,6 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
 
-def load_previous_hashes():
-    previous_hashes = {}
-    try:
-        with open(previous_hash_file) as json_file:
-            previous_hashes = json.load(json_file)
-    except FileNotFoundError:
-        Path(previous_hash_file).touch()
-    except UnicodeDecodeError:
-        sys.exit('Invalid previous hash file detected. Exiting...')
-    except json.decoder.JSONDecodeError:
-        pass
-    finally:
-        return previous_hashes
-
 def load_urls():
     try:
         with open(url_file) as json_file:
@@ -42,9 +28,19 @@ def load_urls():
     else:
         return urls
 
-def write_current_hashes(current_hashes):
-    with open(previous_hash_file, 'w') as outfile:
-        json.dump(current_hashes, outfile)
+def load_previous_hashes():
+    previous_hashes = {}
+    try:
+        with open(previous_hash_file) as json_file:
+            previous_hashes = json.load(json_file)
+    except FileNotFoundError:
+        Path(previous_hash_file).touch()
+    except UnicodeDecodeError:
+        sys.exit('Invalid previous hash file detected. Exiting...')
+    except json.decoder.JSONDecodeError:
+        pass
+    finally:
+        return previous_hashes
 
 def hash_urls(urls):
     current_hashes = {}
@@ -75,6 +71,10 @@ def check_for_changes(current_hashes, previous_hashes):
     
     if not detected_changes:
             print(f'\n{bcolors.HEADER}No changes detected at this time.{bcolors.ENDC}')
+
+def write_current_hashes(current_hashes):
+    with open(previous_hash_file, 'w') as outfile:
+        json.dump(current_hashes, outfile)
 
 def main(): 
     urls = load_urls()
