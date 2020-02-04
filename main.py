@@ -30,7 +30,7 @@ def load_urls():
         sys.exit(
             f'{bcolors.HEADER}' +
             'Malformed URL file. Add some URLS first...' +
-            '{bcolors.ENDC}'
+            f'{bcolors.ENDC}'
         )
     else:
         return urls
@@ -90,7 +90,7 @@ def check_for_changes(current_hashes, previous_hashes):
             print(
                 f'\t{bcolors.WARNING}' +
                 'Page checked for first time.' +
-                '{bcolors.ENDC}'
+                f'{bcolors.ENDC}'
             )
 
     if not detected_changes:
@@ -117,7 +117,7 @@ def main():
         print(
             f'{bcolors.WARNING}' +
             'Add some URLS in urls.json first.' +
-            '{bcolors.ENDC}'
+            f'{bcolors.ENDC}'
         )
 
 
