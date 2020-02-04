@@ -2,6 +2,7 @@ import sys
 import requests
 import hashlib
 import json
+import progressbar
 from pathlib import Path
 
 url_file = 'urls.json'
@@ -52,8 +53,15 @@ def load_previous_hashes():
 
 def hash_urls(urls):
     current_hashes = {}
-    for page_url in urls:
-        current_hashes[page_url] = hash_page_url(page_url)
+    print('Fetching ' + str(len(urls)) + ' URLs...\n')
+    with progressbar.ProgressBar(
+        max_value=len(urls), redirect_stdout=True) as bar:
+        i = 0
+        for page_url in urls:
+            current_hashes[page_url] = hash_page_url(page_url)
+            i += 1
+            bar.update(i)
+
     return current_hashes
 
 
@@ -68,8 +76,10 @@ def hash_page_url(page_url):
 
 def check_for_changes(current_hashes, previous_hashes):
     detected_changes = False
+    print('\t')
+    
     for page_url in current_hashes:
-        print(f'{bcolors.BOLD}Checking ' + page_url + f'...{bcolors.ENDC}')
+        print(f'{bcolors.BOLD}Checked ' + page_url + f'...{bcolors.ENDC}')
         if page_url in previous_hashes:
             if current_hashes[page_url] != previous_hashes[page_url]:
                 detected_changes = True
@@ -87,7 +97,7 @@ def check_for_changes(current_hashes, previous_hashes):
         print(
             f'\n{bcolors.HEADER}' +
             'No changes detected at this time.' +
-            '{bcolors.ENDC}'
+            f'{bcolors.ENDC}'
         )
 
 
